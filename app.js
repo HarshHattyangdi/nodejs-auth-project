@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const User = require("./models/user");
+const auth = require("./middleware/auth");
 
 const express = require("express");
 
@@ -65,7 +66,7 @@ app.post("/login", async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      const token = jst.sign(
+      const token = jwt.sign(
         { user_id: user._id, email },
         process.env.TOKEN_KEY,
         {
@@ -82,6 +83,10 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     console.log(err);
   }
+});
+
+app.post("/welcome", auth, (req, res) => {
+  res.status(200).send("Welcome 🙌");
 });
 
 app.use(express.json());
